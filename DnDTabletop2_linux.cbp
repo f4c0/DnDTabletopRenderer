@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="DnDTabletop2" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/DnDTabletop2" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/Debug" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DDEBUG" />
+					<Add directory="src" />
+				</Compiler>
+				<Linker>
+					<Add library="OgreMain_d" />
+					<Add library="OIS_d" />
+					<Add library="boost_date_time-mgw47-mt-d-1_51" />
+					<Add library="boost_thread-mgw47-mt-d-1_51" />
+					<Add library="boost_system-mgw47-mt-d-1_51" />
+					<Add library="boost_chrono-mgw47-mt-d-1_51" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/DnDTabletop2" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/Release" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="src" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="OgreMain" />
+					<Add library="OIS" />
+					<Add library="boost_date_time-mgw47-mt-1_51" />
+					<Add library="boost_thread-mgw47-mt-1_51" />
+					<Add library="boost_system-mgw47-mt-1_51" />
+					<Add library="boost_chrono-mgw47-mt-1_51" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-fexceptions" />
+			<Add option="-DBOOST_THREAD_USE_LIB" />
+			<Add directory="$(OGRE_HOME)/boost" />
+			<Add directory="$(OGRE_HOME)/include" />
+			<Add directory="$(OGRE_HOME)/include/OGRE" />
+		</Compiler>
+		<Linker>
+			<Add option="-Wl,--enable-auto-import" />
+			<Add library="Ws2_32" />
+			<Add directory="$(OGRE_HOME)/boost/lib/" />
+			<Add directory="$(OGRE_HOME)/lib/$(TARGET_NAME)" />
+		</Linker>
+		<Unit filename="bin/Debug/plugins_d.cfg">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="bin/Debug/resources_d.cfg">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="bin/Release/plugins.cfg">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="bin/Release/resources.cfg">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="src/AppDemarrage.cpp" />
+		<Unit filename="src/AppDemarrage.h" />
+		<Unit filename="src/Battleground.cpp" />
+		<Unit filename="src/Battleground.h" />
+		<Unit filename="src/InputListener.cpp" />
+		<Unit filename="src/InputListener.h" />
+		<Unit filename="src/NetworkManager.cpp" />
+		<Unit filename="src/NetworkManager.h" />
+		<Unit filename="src/Tile.cpp" />
+		<Unit filename="src/Tile.h" />
+		<Unit filename="src/main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="src\WxControlFrame.cpp" main="-- None --" init_handlers="necessary" language="CPP" />
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
