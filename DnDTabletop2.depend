@@ -13475,3 +13475,91 @@
 
 1090798332 c:\users\faco\projets\cpplibraries\ogresdk_mingw_v1-8-1\boost\boost\detail\select_type.hpp
 
+1392917871 source:c:\users\faco\documents\github\dndtabletoprenderer\src\appdemarrage.cpp
+	"AppDemarrage.h"
+
+1392917871 c:\users\faco\documents\github\dndtabletoprenderer\src\appdemarrage.h
+	<Ogre.h>
+	"InputListener.h"
+	"Battleground.h"
+
+1393084852 c:\users\faco\documents\github\dndtabletoprenderer\src\inputlistener.h
+	<Ogre.h>
+	<boost/thread/thread.hpp>
+	<boost/tokenizer.hpp>
+	<vector>
+	<sstream>
+	"NetworkManager.h"
+
+1393084847 c:\users\faco\documents\github\dndtabletoprenderer\src\networkmanager.h
+	<boost/thread/mutex.hpp>
+	<iostream>
+	<queue>
+	<string>
+	<winsock2.h>
+
+1392917871 c:\users\faco\documents\github\dndtabletoprenderer\src\battleground.h
+	<Ogre.h>
+	<map>
+	"Grid.h"
+
+1392917871 c:\users\faco\documents\github\dndtabletoprenderer\src\grid.h
+	<Ogre.h>
+
+1392917871 source:c:\users\faco\documents\github\dndtabletoprenderer\src\battleground.cpp
+	"Battleground.h"
+
+1392917871 source:c:\users\faco\documents\github\dndtabletoprenderer\src\grid.cpp
+	"Grid.h"
+
+1393084622 source:c:\users\faco\documents\github\dndtabletoprenderer\src\inputlistener.cpp
+	"InputListener.h"
+
+1392917871 source:c:\users\faco\documents\github\dndtabletoprenderer\src\main.cpp
+	"AppDemarrage.h"
+	"windows.h"
+
+1393082041 source:c:\users\faco\documents\github\dndtabletoprenderer\src\networkmanager.cpp
+	"NetworkManager.h"
+
+1392917871 source:c:\users\faco\documents\github\dndtabletoprenderer\src\viewportgrid.cpp
+	"ViewportGrid.h"
+	<Ogre/OgreManualObject.h>
+	<Ogre/OgreViewport.h>
+	<Ogre/OgreRenderTarget.h>
+	<Ogre/OgreSceneManager.h>
+	<Ogre/OgreStringConverter.h>
+	<Ogre/OgreMaterialManager.h>
+
+1392917871 c:\users\faco\documents\github\dndtabletoprenderer\src\viewportgrid.h
+	<Ogre/OgreRenderTargetlistener.h>
+	<Ogre/OgreColourValue.h>
+	<Ogre/OgreMath.h>
+	<Ogre/OgreVector3.h>
+
+1335939496 source:c:\users\faco\documents\github\dndtabletoprenderer\src\pugixml\pugixml.cpp
+	"pugixml.hpp"
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<assert.h>
+	<wchar.h>
+	<math.h>
+	<float.h>
+	<setjmp.h>
+	<istream>
+	<ostream>
+	<string>
+	<new>
+	<stdint.h>
+
+1335939550 c:\users\faco\documents\github\dndtabletoprenderer\src\pugixml\pugixml.hpp
+	"pugiconfig.hpp"
+	<stddef.h>
+	<exception>
+	<iterator>
+	<iosfwd>
+	<string>
+
+1335723748 c:\users\faco\documents\github\dndtabletoprenderer\src\pugixml\pugiconfig.hpp
+
