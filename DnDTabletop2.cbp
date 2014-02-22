@@ -85,6 +85,10 @@
 		<Unit filename="src/ViewportGrid.cpp" />
 		<Unit filename="src/ViewportGrid.h" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/pugixml/foreach.hpp" />
+		<Unit filename="src/pugixml/pugiconfig.hpp" />
+		<Unit filename="src/pugixml/pugixml.cpp" />
+		<Unit filename="src/pugixml/pugixml.hpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

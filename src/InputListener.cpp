@@ -1,9 +1,12 @@
 #include "InputListener.h"
 
-InputListener::InputListener(Ogre::Camera* camera, const int port)
+InputListener::InputListener(Ogre::SceneManager* sceneMgr, Battleground* battleground, const int port)
 :FrameListener(),
 m_nm(port),
-m_camera(camera)
+m_sceneMgr(sceneMgr),
+m_battleground(battleground),
+//m_ssCurrentStringFlow(std::ios_base::in),
+m_previousState(NM_QUEUE_EMPTY)
 {
     th_networkManager = new boost::thread(&NetworkManager::listenData, &m_nm);
 }
@@ -20,14 +23,41 @@ InputListener::frameEnded(const Ogre::FrameEvent& evt)
 {
     bool b_continue = true;
     std::string msg = m_nm.messageReceived();
-    std::vector<std::string> tokens;
+    std::string command;
+    //std::vector<std::string> tokens;
 
     if(msg == NM_QUEUE_EMPTY)
     {
-        // Do nothing
+        if(m_previousState == CMD_BG_TRANSFERT)
+        {
+            parse_CMD_BG_TRANSFERT_end();
+        }
+
+        m_previousState = NM_QUEUE_EMPTY;
     }else
     {
-        DISPLAY_RCV_MSG(msg);
+        if(m_previousState == NM_QUEUE_EMPTY)
+        {
+            if(msg.length() < CMD_SIZE)
+            {
+                std::cerr << "Wrong command size !!" << std::endl;
+            }else
+            {
+                m_ssCurrentStringFlow.clear();
+                std::string command = msg.substr(0, CMD_SIZE);
+                std::string firstChunk = msg.substr(CMD_SIZE, msg.length());
+
+                if(command == CMD_BG_TRANSFERT)
+                {
+                    parse_CMD_BG_TRANSFERT_Begin(firstChunk);
+                }
+            }
+        }else if(m_previousState == CMD_BG_TRANSFERT)
+        {
+            parse_CMD_BG_TRANSFERT_fill(msg);
+        }
+        //DISPLAY_RCV_MSG(msg);
+        //ssCurrentStringFlow << msg;
 
 //        boost::tokenizer<> tok(msg);
 //        for(boost::tokenizer<>::iterator beg=tok.begin(); beg!=tok.end();++beg){
@@ -156,4 +186,44 @@ InputListener::frameEnded(const Ogre::FrameEvent& evt)
 
 
     return b_continue;
+}
+
+void
+InputListener::parse_CMD_BG_TRANSFERT_Begin(const std::string chunk)
+{
+    m_previousState = CMD_BG_TRANSFERT;
+    m_ssCurrentStringFlow << chunk;
+}
+
+void
+InputListener::parse_CMD_BG_TRANSFERT_fill(const std::string chunk)
+{
+    m_ssCurrentStringFlow << chunk;
+}
+
+void
+InputListener::parse_CMD_BG_TRANSFERT_end(void)
+{
+    std::cout << m_ssCurrentStringFlow.str() << std::endl;
+    m_ssCurrentStringFlow << '\0';
+    xml_document doc;
+    xml_parse_result xml_result = doc.load(m_ssCurrentStringFlow);
+
+
+    if(xml_result)
+    {
+        xml_node BattleFieldNode = doc.child("Battlefield");
+
+        delete m_battleground;
+        m_battleground = new Battleground(BattleFieldNode, m_sceneMgr);
+
+        //Battleground bg(BattleFieldNode, NULL);
+
+
+    }else
+    {
+        std::cerr << "Load result: " << xml_result.description() << std::endl;
+    }
+
+
 }

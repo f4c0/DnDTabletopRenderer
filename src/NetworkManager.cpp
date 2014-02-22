@@ -100,36 +100,32 @@ NetworkManager::listenData(void)
             error = listen(m_socket, 1);
             if(error == 0)
             {
+                std::cout << "ServerSocket: Connection requested...\n";
                 server_length = sizeof(m_socketInfo);
                 m_clientSocket = accept(m_socket, (SOCKADDR*) &m_socketInfo, &server_length);
                 if(m_clientSocket == INVALID_SOCKET)
                 {
                    std::cerr << "ServerSocket: Failed to accept the TCP session ( " << WSAGetLastError() << " )" << std::endl;
                    m_kill = true;
+                }else
+                {
+                    std::cout << "ServerSocket: Connection accepted\n";
                 }
             }
         }
 
-
-
         while((error ==0) && (!m_kill))
         {
+
             messageLength = recv(m_clientSocket, recMessage, RCV_BUFFER_LENGTH -1, 0);
             if(messageLength >0)
             {
                 recMessage[messageLength] = '\0';
-
-            //messageLength = recvfrom(m_socket, recMessage, RCV_BUFFER_LENGTH, 0, (SOCKADDR*) &m_socketInfo, &server_length);
-
-            //recMessage[messageLength] = '\0';
-            //std::cout<< messageLength <<": " <<recMessage <<std::endl;
                 {
                     boost::mutex::scoped_lock lock(m_queueMutex);
                     m_msgQueue.push(recMessage);
                 }
-            //sendto(m_socket, sendMes , strlen(sendMes), 0, (SOCKADDR*) &m_socketInfo, server_length);
             }
-
         }
 
     }else

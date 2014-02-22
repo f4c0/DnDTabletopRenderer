@@ -12,7 +12,11 @@ m_battleground(NULL)
 
 AppDemarrage::~AppDemarrage()
 {
-    OGRE_DELETE m_battleground;
+    if(m_battleground != NULL)
+    {
+       delete m_battleground;
+    }
+
     OGRE_DELETE mRoot;
 }
 
@@ -92,7 +96,10 @@ AppDemarrage::start(const Ogre::String& pluginFile, const Ogre::String& ogreFile
 
     //mCamera->setPolygonMode(Ogre::PM_WIREFRAME);
 
-    mFrameListener= new InputListener(mCamera);
+    m_battleground = new Battleground("plop", mSceneMgr);
+    m_battleground->load("battlegnd.png");
+
+    mFrameListener= new InputListener(mSceneMgr, m_battleground);
     mRoot->addFrameListener(mFrameListener);
 
 //    Ogre::Entity *ent = mSceneMgr->createEntity("pinguin", "penguin.mesh");
@@ -137,8 +144,11 @@ AppDemarrage::start(const Ogre::String& pluginFile, const Ogre::String& ogreFile
 //    textPass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
 
 //Ogre::Terrain terrain(mSceneMgr);
-    Battleground bg("plop", mSceneMgr);
-    bg.load("battlegnd.png");
+//    Battleground bg("plop", mSceneMgr);
+//    bg.load("battlegnd.png");
+
+
+
 //mCamera->setPolygonMode(Ogre::PM_WIREFRAME);
 //	Ogre::ManualObject* table = mSceneMgr->createManualObject("table");
 //

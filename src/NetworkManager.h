@@ -9,12 +9,7 @@
 
 #define RCV_BUFFER_LENGTH 256
 
-#define NM_QUEUE_EMPTY "QUEUE_EMPTY 0x11"
-#define MSG_SHUTDOWN "shutdown"
-#define MSG_SIZEWIN "sizewin"
-#define MSG_CAM_MOVE "move"
-#define MSG_WIRE "wire"
-#define MSG_GRID "grid"
+#define NM_QUEUE_EMPTY "[00]"
 
 class NetworkManager
 {

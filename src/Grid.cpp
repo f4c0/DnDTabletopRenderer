@@ -6,13 +6,12 @@ m_colour(m_colour),
 m_pGrid(NULL)
 {
     m_pGrid = mSceneMgr->createManualObject("Grid");
-
-
 }
 
 Grid::~Grid()
 {
-    //dtor
+    mSceneMgr->getRootSceneNode()->detachObject(m_pGrid);
+    mSceneMgr->destroyManualObject(m_pGrid);
 }
 
 void
