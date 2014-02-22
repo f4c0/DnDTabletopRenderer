@@ -14,11 +14,37 @@ NetworkManager::~NetworkManager()
 {
     int errorCode;
 
-    errorCode = closesocket(m_socket);
+    // ********************************************************
+	// Fermeture de la session TCP Correspondant à la commande connect()
+	// ********************************************************
+	errorCode=shutdown(m_clientSocket,2); // 2 signifie socket d'émission et d'écoute
+	if (errorCode!=0)
+	{
+	    std::cerr << "ServerSocket: Failed to shutdown client socket ( " << errorCode << " // " << WSAGetLastError() << " )" << std::endl;
+	}
 
-    if (errorCode != NO_ERROR)
+	// ********************************************************
+	// Fermeture des deux socket correspondant à la commande socket() et accept()
+	// ********************************************************
+	errorCode=closesocket(m_clientSocket);
+	if (errorCode!=0)
+	{
+	    std::cerr << "ServerSocket: Failed to close client socket ( " << errorCode << " // " << WSAGetLastError() << " )" << std::endl;
+	}
+
+	errorCode=closesocket(m_socket);
+	if (errorCode!=0)
+	{
+	    std::cerr << "ServerSocket: Failed to close socket ( " << errorCode << " // " << WSAGetLastError() << " )" << std::endl;
+	}
+
+	// ********************************************************
+	// Quitte proprement le winsock ouvert avec la commande WSAStartup
+	// ********************************************************
+	errorCode=WSACleanup(); // A appeler autant de fois qu'il a été ouvert.
+	if (errorCode!=0)
     {
-        std::cerr << "ServerSocket: Failed to close socket ( " << WSAGetLastError() << " )" << std::endl;
+        std::cerr << "ServerSocket: Winsock cannot be closed ( " << errorCode << " // " << WSAGetLastError() << " )" << std::endl;
     }
 }
 
@@ -35,7 +61,7 @@ NetworkManager::init(void)
         std::cerr << "Socket Initialization: Error with WSAStartup ( " << WSAGetLastError() << " )" << std::endl;
     }else
     {
-        m_socket = socket(AF_INET, SOCK_DGRAM, 0);
+        m_socket = socket(AF_INET, SOCK_STREAM, 0);
         if (m_socket == INVALID_SOCKET)
         {
             std::cerr << "Socket Initialization: Error creating socket ( " << WSAGetLastError() << " )" << std::endl;
@@ -65,20 +91,46 @@ NetworkManager::listenData(void)
     int messageLength;
     char recMessage[RCV_BUFFER_LENGTH];
 
+    int error = 99;
+
     if(m_initialized)
     {
-        do
+        while((error !=0) && (!m_kill))
         {
-            server_length = sizeof(struct sockaddr_in);
-            messageLength = recvfrom(m_socket, recMessage, RCV_BUFFER_LENGTH, 0, (SOCKADDR*) &m_socketInfo, &server_length);
-            recMessage[messageLength] = '\0';
-            //std::cout<< messageLength <<": " <<recMessage <<std::endl;
+            error = listen(m_socket, 1);
+            if(error == 0)
             {
-                boost::mutex::scoped_lock lock(m_queueMutex);
-                m_msgQueue.push(recMessage);
+                server_length = sizeof(m_socketInfo);
+                m_clientSocket = accept(m_socket, (SOCKADDR*) &m_socketInfo, &server_length);
+                if(m_clientSocket == INVALID_SOCKET)
+                {
+                   std::cerr << "ServerSocket: Failed to accept the TCP session ( " << WSAGetLastError() << " )" << std::endl;
+                   m_kill = true;
+                }
             }
+        }
+
+
+
+        while((error ==0) && (!m_kill))
+        {
+            messageLength = recv(m_clientSocket, recMessage, RCV_BUFFER_LENGTH -1, 0);
+            if(messageLength >0)
+            {
+                recMessage[messageLength] = '\0';
+
+            //messageLength = recvfrom(m_socket, recMessage, RCV_BUFFER_LENGTH, 0, (SOCKADDR*) &m_socketInfo, &server_length);
+
+            //recMessage[messageLength] = '\0';
+            //std::cout<< messageLength <<": " <<recMessage <<std::endl;
+                {
+                    boost::mutex::scoped_lock lock(m_queueMutex);
+                    m_msgQueue.push(recMessage);
+                }
             //sendto(m_socket, sendMes , strlen(sendMes), 0, (SOCKADDR*) &m_socketInfo, server_length);
-        }while(!m_kill);
+            }
+
+        }
 
     }else
     {

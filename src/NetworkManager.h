@@ -36,6 +36,8 @@ class NetworkManager
         SOCKET m_socket;
         SOCKADDR_IN m_socketInfo;
 
+        SOCKET m_clientSocket;
+
         bool m_kill;
         boost::mutex m_queueMutex;
         std::queue<std::string> m_msgQueue;
