@@ -24,7 +24,7 @@ using namespace pugi;
 class InputListener : public Ogre::FrameListener
 {
 public:
-    InputListener(Ogre::SceneManager* sceneMgr, Battleground* battleground, const int port = 33333);
+    InputListener(Ogre::SceneManager* sceneMgr, std::map<int, Ogre::String>* resourceIdMapper, Battleground* battleground, const int port = 33333);
     virtual ~InputListener(void);
     virtual bool frameEnded(const Ogre::FrameEvent& evt);
 
@@ -34,6 +34,7 @@ private:
     Battleground* m_battleground;
 
     Ogre::SceneManager* m_sceneMgr;
+    std::map<int, Ogre::String>* m_resourceIdMapper;
 
     std::stringstream m_ssCurrentStringFlow;
     std::string m_previousState;

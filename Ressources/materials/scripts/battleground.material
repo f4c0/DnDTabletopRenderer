@@ -9,6 +9,76 @@ material Grid/default
 	}
 }
 
+material Tile/Boue
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture dirt01.jpg
+			}
+		}
+	}
+}
+
+material Tile/Sable
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture Dirt.jpg
+			}
+		}
+	}
+}
+
+material Tile/Glace
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture frost.png
+			}
+		}
+	}
+}
+
+material Tile/Herbe
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture grass_1024.jpg
+			}
+		}
+	}
+}
+
+material Tile/DamierNB
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture MRAMOR6X6.jpg
+			}
+		}
+	}
+}
+
 material Tile/ClearWaterStream
 {
 	technique
@@ -77,5 +147,21 @@ material Tile/Minitiles
 	}
 }
 
-
-
+material RustyBarrel
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.5 0.5 0.5 1.0
+			diffuse 1.0 1.0 1.0 1.0
+			specular 0.0 0.0 0.0 1.0 12.5
+			emissive 0.0 0.0 0.0 1.0
+			texture_unit
+			{
+				texture RustyBarrel.png
+				filtering trilinear
+			}
+		}
+	}
+}

@@ -1,54 +1,33 @@
 #include "Battleground.h"
 
-Battleground::Battleground(const Ogre::String &name, Ogre::SceneManager* mSceneMgr)
+Battleground::Battleground(const xml_node &xmlBattlefieldNode, Ogre::SceneManager* mSceneMgr, std::map<int, Ogre::String>* resourceIdMapper)
 :m_SceneMgr(mSceneMgr),
+m_bfNode(NULL),
 m_battleGnd(NULL),
 m_width(0),
 m_height(0),
-m_grid(NULL)
+m_grid(NULL),
+m_resourceIdMapper(resourceIdMapper)
 {
-    m_grid = new Grid(mSceneMgr);
-    m_battleGnd = mSceneMgr->createManualObject(name);
-    m_battleGnd->setCastShadows(false);
-}
-
-Battleground::Battleground(const xml_node &xmlBattlefieldNode, Ogre::SceneManager* mSceneMgr)
-:m_SceneMgr(mSceneMgr),
-m_battleGnd(NULL),
-m_width(0),
-m_height(0),
-m_grid(NULL)
-{
-    m_grid = new Grid(mSceneMgr);
     m_battleGnd = mSceneMgr->createManualObject("Battleground");
     m_battleGnd->setCastShadows(false);
 
-    std::map<unsigned long long, std::vector<unsigned int> > indexRoomMap;
-    std::map<unsigned long long, std::vector<unsigned int> >::iterator indexRoomMapItr;
+    std::map<int, std::vector<unsigned int> > indexRoomMap;
+    std::map<int, std::vector<unsigned int> >::iterator indexRoomMapItr;
     std::vector<unsigned int>::const_iterator tilesVectItr;
 
     unsigned int tileIndex;
-    unsigned long long ResourceId;
+    int ResourceId;
 
     xml_node TilesNode = xmlBattlefieldNode.child("Tiles");
 
     std::istringstream (TilesNode.attribute("width").value()) >> m_width;
     std::istringstream (TilesNode.attribute("height").value()) >> m_height;
 
-    tileIndex = 0L;
+    tileIndex = 0;
     for (xml_node tileNode = TilesNode.first_child(); tileNode; tileNode = tileNode.next_sibling())
     {
         std::istringstream (tileNode.attribute("id").value()) >> ResourceId;
-
-        //TEST !!!!
-        if(ResourceId == 24310463750)
-        {
-            ResourceId = 1;
-        }else
-        {
-            ResourceId = 255;
-        }
-
 
         indexRoomMap[ResourceId].push_back(tileIndex);
         tileIndex ++;
@@ -97,9 +76,61 @@ m_grid(NULL)
     }
 
     m_battleGnd->setRenderQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1 - 1);
-    m_SceneMgr->getRootSceneNode()->attachObject(m_battleGnd);
 
-    m_grid->create(m_width, m_height, BATTLEGND_TILE_SIZE);
+    m_bfNode = m_SceneMgr->getRootSceneNode()->createChildSceneNode(BATTLEGND_NODE_NAME, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY);
+    m_bfNode->attachObject(m_battleGnd);
+    m_grid = new Grid(m_bfNode, m_SceneMgr, m_width, m_height, BATTLEGND_TILE_SIZE);
+
+    for(xml_node movableObjNode = xmlBattlefieldNode.child("MovableObject"); movableObjNode; movableObjNode = movableObjNode.next_sibling("MovableObject"))
+    {
+        Ogre::Real objX;
+        Ogre::Real objY;
+        int refId;
+        int resId;
+
+        std::istringstream (movableObjNode.attribute("resourceId").value()) >> resId;
+
+        std::istringstream (movableObjNode.attribute("x").value()) >> objX;
+        std::istringstream (movableObjNode.attribute("y").value()) >> objY;
+        std::istringstream (movableObjNode.attribute("refId").value()) >> refId;
+
+        std::cout << "resourceId: " << movableObjNode.attribute("resourceId").value() << "\n";
+        std::cout << "refId: " << movableObjNode.attribute("refId").value() << "\n";
+        std::cout << "x: " << objX << "\n";
+        std::cout << "y: " << objY << "\n";
+
+        Ogre::Vector3 objPos(objX, 0, objY);
+
+
+       std::string entityName = "entity_mvObj_";
+        entityName.append(movableObjNode.attribute("refId").value());
+
+        std::string nodeName = "node_mvObj_";
+        nodeName.append(movableObjNode.attribute("refId").value());
+
+        Ogre::Entity*       objEntity = m_SceneMgr->createEntity(entityName, "Barrel.mesh");
+        Ogre::SceneNode*    objNode = m_bfNode->createChildSceneNode(nodeName, objPos, Ogre::Quaternion::IDENTITY);
+        objNode->scale(0.25, 0.25, 0.25);
+        objNode->attachObject(objEntity);
+
+
+        if(resId == 5)
+        {
+            std::string lightName = "light_mvObj_";
+            lightName.append(movableObjNode.attribute("refId").value());
+
+            Ogre::Light* pointLight = mSceneMgr->createLight(lightName);
+            pointLight->setType(Ogre::Light::LT_POINT);
+            //objPos.y = 5 * BATTLEGND_TILE_SIZE;
+            pointLight->setPosition(objPos);
+            pointLight->setDiffuseColour(1.0, 0.5, 0.0);
+            pointLight->setSpecularColour(1.0, 0.5, 0.0);
+
+            Ogre::Real lightRange = 40.0 * BATTLEGND_TILE_SIZE;
+            pointLight->setAttenuation( lightRange, 1.0f, 4.5/lightRange, 75.0f/(lightRange*lightRange) );
+            //pointLight->setAttenuation( 13, 1.0, 0.35, 0.44);
+        }
+    }
 
 }
 
@@ -112,103 +143,32 @@ Battleground::~Battleground()
 
     if(m_battleGnd != NULL)
     {
-        m_SceneMgr->getRootSceneNode()->detachObject(m_battleGnd);
+        m_bfNode->removeAndDestroyAllChildren();
+        m_SceneMgr->destroyAllEntities();
+        m_SceneMgr->destroyAllLights();
         m_SceneMgr->destroyManualObject(m_battleGnd);
+        m_SceneMgr->destroySceneNode(m_bfNode);
+
     }
 
 }
-
-void
-Battleground::load(const Ogre::String &fileName)
-{
-    Ogre::Image img;
-    std::map<unsigned int, std::vector<unsigned int> > indexRoomMap;
-    unsigned int tileIndex;
-    img.load(fileName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    m_width = img.getWidth();
-    m_height = img.getHeight();
-    //unsigned int roomId = 0;
-    std::map<unsigned int, std::vector<unsigned int> >::iterator mapItr;
-    std::vector<unsigned int>::const_iterator vectItr;
-
-    for(unsigned int roomId = 0; roomId <= 255; roomId++)
-    {
-        for(unsigned int y = 0; y < m_height; y++)
-        {
-            for(unsigned int x = 0; x < m_width; x++)
-            {
-                if(((img.getColourAt(x,y,0).getAsRGBA()) >> 24) == roomId)
-                {
-                    tileIndex = y * m_width + x;
-                    indexRoomMap[roomId].push_back(tileIndex);
-                }
-            }
-        }
-    }
-
-    Ogre::Vector2 vectTopLeft;
-    Ogre::Vector2 vectBottomLeft;
-    Ogre::Vector2 vectTopRight;
-    Ogre::Vector2 vectBottomRight;
-    for(mapItr = indexRoomMap.begin(); mapItr != indexRoomMap.end(); ++mapItr)
-    {
-        std::sort(mapItr->second.begin(), mapItr->second.end());
-
-        const Ogre::String materialName = getMaterialById(mapItr->first);
-        m_battleGnd->begin(materialName, Ogre::RenderOperation::OT_TRIANGLE_LIST , Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-
-        for(vectItr = mapItr->second.begin(); vectItr != mapItr->second.end(); ++vectItr)
-        {
-            vectTopLeft.x = (*vectItr % m_width)  * BATTLEGND_TILE_SIZE;
-            vectTopLeft.y = (*vectItr / m_width) * BATTLEGND_TILE_SIZE;
-
-            vectBottomLeft.x = vectTopLeft.x;
-            vectBottomLeft.y = vectTopLeft.y + BATTLEGND_TILE_SIZE;
-
-            vectTopRight.x = vectTopLeft.x + BATTLEGND_TILE_SIZE;
-            vectTopRight.y = vectTopLeft.y;
-
-            vectBottomRight.x = vectTopLeft.x + BATTLEGND_TILE_SIZE;
-            vectBottomRight.y = vectTopLeft.y + BATTLEGND_TILE_SIZE;
-
-            m_battleGnd->position(vectTopLeft.x, 0, vectTopLeft.y);
-            m_battleGnd->textureCoord(0,0);
-            m_battleGnd->position(vectBottomLeft.x, 0, vectBottomLeft.y);
-            m_battleGnd->textureCoord(0,1);
-            m_battleGnd->position(vectTopRight.x, 0, vectTopRight.y);
-            m_battleGnd->textureCoord(1,0);
-            m_battleGnd->position(vectTopRight.x, 0, vectTopRight.y);
-            m_battleGnd->textureCoord(1,0);
-            m_battleGnd->position(vectBottomLeft.x, 0, vectBottomLeft.y);
-            m_battleGnd->textureCoord(0,1);
-            m_battleGnd->position(vectBottomRight.x, 0, vectBottomRight.y);
-            m_battleGnd->textureCoord(1,1);
-
-        }
-        m_battleGnd->end();
-    }
-
-    m_battleGnd->setRenderQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1 - 1);
-    m_SceneMgr->getRootSceneNode()->attachObject(m_battleGnd);
-
-    m_grid->create(m_width, m_height, BATTLEGND_TILE_SIZE);
-}
-
-void
-Battleground::load(const xml_node& xmlBattlefieldNode)
-{
-
-}
-
 
 Ogre::String
-Battleground::getMaterialById(const unsigned long long id) const
+Battleground::getMaterialById(const int id) const
 {
-    if(id != 255)
+    if(m_resourceIdMapper->count(id))
     {
-       return  "Tile/Minitiles";
+       return (*m_resourceIdMapper)[id];
     }else
     {
-       return  "Tile/ClearMoltenStream";
+        return  "Tile/Minitiles";
     }
+
+//    if(id != 255)
+//    {
+//       return  "Tile/Minitiles";
+//    }else
+//    {
+//       return  "Tile/ClearMoltenStream";
+//    }
 }

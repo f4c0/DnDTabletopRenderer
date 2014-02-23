@@ -2,6 +2,7 @@
 #define APPDEMARRAGE_H
 
 #include <Ogre.h>
+#include <map>
 #include "InputListener.h"
 #include "Battleground.h"
 
@@ -24,6 +25,8 @@ class AppDemarrage
         Ogre::RenderWindow* mWindow;
         Ogre::SceneManager* mSceneMgr;
         Ogre::Camera* mCamera;
+        std::map<int, Ogre::String> resourceIdMapper;
+
 
         InputListener* mFrameListener;
         Battleground* m_battleground;

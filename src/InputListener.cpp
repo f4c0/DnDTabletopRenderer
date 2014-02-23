@@ -1,13 +1,15 @@
 #include "InputListener.h"
 
-InputListener::InputListener(Ogre::SceneManager* sceneMgr, Battleground* battleground, const int port)
+InputListener::InputListener(Ogre::SceneManager* sceneMgr, std::map<int, Ogre::String>* resourceIdMapper, Battleground* battleground, const int port)
 :FrameListener(),
 m_nm(port),
 m_sceneMgr(sceneMgr),
+m_resourceIdMapper(resourceIdMapper),
 m_battleground(battleground),
 //m_ssCurrentStringFlow(std::ios_base::in),
 m_previousState(NM_QUEUE_EMPTY)
 {
+    std::cout << "SIZE: " << resourceIdMapper->size() << "\n";
     th_networkManager = new boost::thread(&NetworkManager::listenData, &m_nm);
 }
 
@@ -215,7 +217,7 @@ InputListener::parse_CMD_BG_TRANSFERT_end(void)
         xml_node BattleFieldNode = doc.child("Battlefield");
 
         delete m_battleground;
-        m_battleground = new Battleground(BattleFieldNode, m_sceneMgr);
+        m_battleground = new Battleground(BattleFieldNode, m_sceneMgr, m_resourceIdMapper);
 
         //Battleground bg(BattleFieldNode, NULL);
 
