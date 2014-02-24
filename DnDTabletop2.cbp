@@ -60,12 +60,8 @@
 			<Add directory="$(OGRE_HOME)/boost/lib/" />
 			<Add directory="$(OGRE_HOME)/lib/$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="bin/Debug/plugins_d.cfg">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="bin/Debug/resources_d.cfg">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="bin/Debug/plugins_d.cfg" />
+		<Unit filename="bin/Debug/resources_d.cfg" />
 		<Unit filename="bin/Release/plugins.cfg">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
