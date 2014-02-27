@@ -55,8 +55,8 @@ AppDemarrage::start(const Ogre::String& pluginFile, const Ogre::String& ogreFile
 
     }
 
-    //if(!(mRoot->restoreConfig() || mRoot->showConfigDialog()))
-    if(!mRoot->showConfigDialog())
+    if(!(mRoot->restoreConfig() || mRoot->showConfigDialog()))
+    //if(!mRoot->showConfigDialog())
     {
         return false;
     }
@@ -76,7 +76,7 @@ AppDemarrage::start(const Ogre::String& pluginFile, const Ogre::String& ogreFile
 //    pointLight->setDiffuseColour(0.7, 0.7, 0.7);
 //    pointLight->setSpecularColour(0.7, 0.7, 0.7);
 
-    mCamera = mSceneMgr->createCamera("MainCam");
+    mCamera = mSceneMgr->createCamera(APP_MAIN_CAM_NAME);
     #define MYTILESIZE 1.5f
     mCamera->setPosition(5*MYTILESIZE,8,10*MYTILESIZE);
     //mCamera->setDirection(Ogre::Vector3::)
@@ -85,7 +85,7 @@ AppDemarrage::start(const Ogre::String& pluginFile, const Ogre::String& ogreFile
     mCamera->setDirection(0,0,0);
 
     mCamera->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
-    mCamera->setNearClipDistance(1);
+    mCamera->setNearClipDistance(0.5);
     mCamera->setFarClipDistance(15);
 
     mCamera->setOrthoWindow(20 * MYTILESIZE, 20 * MYTILESIZE / 2.7f);

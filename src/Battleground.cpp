@@ -77,10 +77,14 @@ m_resourceIdMapper(resourceIdMapper)
 
     m_battleGnd->setRenderQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1 - 1);
 
+    /* Tiles */
     m_bfNode = m_SceneMgr->getRootSceneNode()->createChildSceneNode(BATTLEGND_NODE_NAME, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY);
     m_bfNode->attachObject(m_battleGnd);
+
+    /* Grid */
     m_grid = new Grid(m_bfNode, m_SceneMgr, m_width, m_height, BATTLEGND_TILE_SIZE);
 
+    /* 3D Objects */
     for(xml_node movableObjNode = xmlBattlefieldNode.child("MovableObject"); movableObjNode; movableObjNode = movableObjNode.next_sibling("MovableObject"))
     {
         Ogre::Real objX;
@@ -102,16 +106,12 @@ m_resourceIdMapper(resourceIdMapper)
         Ogre::Vector3 objPos(objX, 0, objY);
 
 
-       std::string entityName = "entity_mvObj_";
+        std::string entityName = "entity_mvObj_";
         entityName.append(movableObjNode.attribute("refId").value());
 
         std::string nodeName = "node_mvObj_";
         nodeName.append(movableObjNode.attribute("refId").value());
 
-        Ogre::Entity*       objEntity = m_SceneMgr->createEntity(entityName, "Barrel.mesh");
-        Ogre::SceneNode*    objNode = m_bfNode->createChildSceneNode(nodeName, objPos, Ogre::Quaternion::IDENTITY);
-        objNode->scale(0.25, 0.25, 0.25);
-        objNode->attachObject(objEntity);
 
 
         if(resId == 5)
@@ -121,17 +121,90 @@ m_resourceIdMapper(resourceIdMapper)
 
             Ogre::Light* pointLight = mSceneMgr->createLight(lightName);
             pointLight->setType(Ogre::Light::LT_POINT);
-            //objPos.y = 5 * BATTLEGND_TILE_SIZE;
+            objPos.y = 1 * BATTLEGND_TILE_SIZE;
             pointLight->setPosition(objPos);
-            pointLight->setDiffuseColour(1.0, 0.5, 0.0);
-            pointLight->setSpecularColour(1.0, 0.5, 0.0);
+            pointLight->setDiffuseColour(1.0, 1.0, 1.0);
+            pointLight->setSpecularColour(1.0, 1.0, 1.0);
 
-            Ogre::Real lightRange = 40.0 * BATTLEGND_TILE_SIZE;
-            pointLight->setAttenuation( lightRange, 1.0f, 4.5/lightRange, 75.0f/(lightRange*lightRange) );
+            Ogre::Entity*       objEntity = m_SceneMgr->createEntity(entityName, Ogre::SceneManager::PT_SPHERE);
+            objEntity->setMaterialName("Light/ClearMoltenStream");
+            Ogre::SceneNode*    objNode = m_bfNode->createChildSceneNode(nodeName, objPos, Ogre::Quaternion::IDENTITY);
+            objNode->scale(0.005, 0.005, 0.005);
+            objNode->attachObject(objEntity);
+            //Ogre::Real lightRange = 5.0 * BATTLEGND_TILE_SIZE;
+            //pointLight->setAttenuation( lightRange, 1.0f, 4.5/lightRange, 75.0f/(lightRange*lightRange) );
             //pointLight->setAttenuation( 13, 1.0, 0.35, 0.44);
+        }else
+        {
+            Ogre::Entity*       objEntity = m_SceneMgr->createEntity(entityName, "Barrel.mesh");
+            Ogre::SceneNode*    objNode = m_bfNode->createChildSceneNode(nodeName, objPos, Ogre::Quaternion::IDENTITY);
+            objNode->scale(0.25, 0.25, 0.25);
+            objNode->attachObject(objEntity);
+
         }
     }
 
+//    const Ogre::Vector3 p1(4.5, 0, 1.5);
+//    const Ogre::Vector3 p2(7.5, 0, 4.5);
+//    createWall("0", p1, p2);
+
+    /* Walls */
+    int wallId = 0;
+
+    //Ogre::Entity*       objEntity = m_SceneMgr->createEntity(entityName, "cube.mesh");
+
+    Ogre::Vector3 p1;
+    p1.y = 0.0f;
+    Ogre::Vector3 p2;
+    p2.y = 0.0f;
+    for(xml_node wallNode = xmlBattlefieldNode.child("Wall"); wallNode; wallNode = wallNode.next_sibling("Wall"))
+    {
+
+        //Ogre::Entity*       objEntity = m_SceneMgr->createEntity(wallName, "cube.mesh");
+        //Ogre::SceneNode*    wallNode    = m_bfNode->createChildSceneNode(wallNodeName, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY);
+//        wallNode->attachObject(wall);
+//
+//        wall->begin(materialName, Ogre::RenderOperation::OT_TRIANGLE_LIST , Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        std::cout << "GLOP !!!\n";
+        for (xml_node_iterator it = wallNode.begin(); it != wallNode.end(); ++it)
+        {
+            Ogre::Real pointX;
+            Ogre::Real pointZ;
+            std::istringstream (it->attribute("x").value()) >> pointX;
+            std::istringstream (it->attribute("y").value()) >> pointZ;
+
+            std::cout << "POING !!!\n";
+
+            if(it == wallNode.begin())
+            {
+                p1.x = pointX;
+                p1.z = pointZ + 0.5 * BATTLEGND_TILE_SIZE;
+            }else
+            {
+                p2.x = pointX;
+                p2.z = pointZ + 0.5 * BATTLEGND_TILE_SIZE;
+                std::string strWallId = static_cast<std::ostringstream*>( &(std::ostringstream() << wallId) )->str();
+
+                createWall(strWallId, p1, p2);
+                wallId ++;
+
+                p1.x = pointX;
+                p1.z = pointZ;
+            }
+
+            //createWall(i, p1, p2);
+        }
+//        wall->end();
+
+    }
+
+    std::cout << "Number of created walls: " << wallId << "\n";
+
+    Ogre::Light* pointLight = mSceneMgr->createLight("DungeonLight");
+    pointLight->setType(Ogre::Light::LT_POINT);
+    pointLight->setPosition(Ogre::Vector3(10*1.5f, 1*1.5f, 10*1.5f));
+    pointLight->setDiffuseColour(0.1, 0.1, 0.1);
+    pointLight->setSpecularColour(0.1, 0.1, 0.1);
 }
 
 Battleground::~Battleground()
@@ -171,4 +244,31 @@ Battleground::getMaterialById(const int id) const
 //    {
 //       return  "Tile/ClearMoltenStream";
 //    }
+}
+
+void
+Battleground::createWall(const std::string wallId, const Ogre::Vector3 p1, const Ogre::Vector3 p2)
+{
+    const Ogre::Real wallCenterX = (std::abs(p1.x - p2.x) / 2.0) + std::min(p1.x, p2.x);
+    const Ogre::Real wallCenterY = 1.5f;
+    const Ogre::Real wallCenterZ = (std::abs(p1.z - p2.z) / 2.0) + std::min(p1.z, p2.z);
+    const Ogre::Vector3 wallCenter(wallCenterX, wallCenterY, wallCenterZ);
+    std::cout << wallCenter << "\n";
+    const Ogre::Real wallLength = sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.z - p2.z) * (p1.z - p2.z));
+    const Ogre::Real angle  = acos(std::abs(p1.x - p2.x) / wallLength);
+
+    std::string wallEntityName  = "WallEnt_";
+    wallEntityName.append(wallId);
+    std::string wallNodeName    = "WallNode_";
+    wallNodeName.append(wallId);
+
+    Ogre::Quaternion rotation(Ogre::Radian(angle), Ogre::Vector3::UNIT_Y);
+
+    //Ogre::Entity*       wallEntity = m_SceneMgr->createEntity(wallEntityName, "Cube.mesh");
+    Ogre::Entity*       wallEntity = m_SceneMgr->createEntity(wallEntityName, Ogre::SceneManager::PT_CUBE);
+    wallEntity->setMaterialName("Wall/brick");
+
+    Ogre::SceneNode*    wallNode = m_bfNode->createChildSceneNode(wallNodeName, wallCenter, rotation);
+    wallNode->scale(0.01*wallLength, 0.01*1, 0.01);
+    wallNode->attachObject(wallEntity);
 }

@@ -9,6 +9,48 @@ material Grid/default
 	}
 }
 
+material Wall/brick
+{
+technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture KAMEN320x240-bump.jpg
+				tex_address_mode wrap
+			}
+		}
+	}
+}
+
+material Light/ClearMoltenStream
+{
+	technique
+	{
+		pass
+		{
+			emissive 1.0 1.0 1.0
+			scene_blend add
+			depth_write off
+			cull_software none
+			cull_hardware none
+
+			texture_unit
+			{
+				texture molten01.jpg
+				scroll_anim 0.125 0
+			}
+
+			texture_unit
+			{
+				texture molten01.jpg
+				wave_xform scroll_y sine 0 0.1 0 0.25
+			}
+		}
+	}
+}
+
 material Tile/Boue
 {
 	technique

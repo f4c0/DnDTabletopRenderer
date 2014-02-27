@@ -6,7 +6,6 @@ m_nm(port),
 m_sceneMgr(sceneMgr),
 m_resourceIdMapper(resourceIdMapper),
 m_battleground(battleground),
-//m_ssCurrentStringFlow(std::ios_base::in),
 m_previousState(NM_QUEUE_EMPTY)
 {
     std::cout << "SIZE: " << resourceIdMapper->size() << "\n";
@@ -30,7 +29,7 @@ InputListener::frameEnded(const Ogre::FrameEvent& evt)
 
     if(msg == NM_QUEUE_EMPTY)
     {
-        if(m_previousState == CMD_BG_TRANSFERT)
+        if(m_previousState == CMD_TRANSFERT_BATTLEFIELD)
         {
             parse_CMD_BG_TRANSFERT_end();
         }
@@ -49,12 +48,54 @@ InputListener::frameEnded(const Ogre::FrameEvent& evt)
                 std::string command = msg.substr(0, CMD_SIZE);
                 std::string firstChunk = msg.substr(CMD_SIZE, msg.length());
 
-                if(command == CMD_BG_TRANSFERT)
+                if(command == CMD_TRANSFERT_BATTLEFIELD)
                 {
                     parse_CMD_BG_TRANSFERT_Begin(firstChunk);
+                }else if(command == CMD_MOVE_CAM_LEFT)
+                {
+                    int value;
+                    std::istringstream (firstChunk) >> value;
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->move(Ogre::Vector3(-value,0,0));
+                }else if(command == CMD_MOVE_CAM_RIGHT)
+                {
+                    int value;
+                    std::istringstream (firstChunk) >> value;
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->move(Ogre::Vector3(value,0,0));
+                }
+                else if(command == CMD_MOVE_CAM_UP)
+                {
+                    int value;
+                    std::istringstream (firstChunk) >> value;
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->move(Ogre::Vector3(0,0,-value));
+                }
+                else if(command == CMD_MOVE_CAM_DOWN)
+                {
+                    int value;
+                    std::istringstream (firstChunk) >> value;
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->move(Ogre::Vector3(0,0,value));
+                }
+                else if(command == CMD_SHUTDOWN)
+                {
+                    b_continue = false;
+                }
+                else if(command == CMD_PROJ_ORTHO)
+                {
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
+                }
+                else if(command == CMD_PROJ_PERSPECTIVE)
+                {
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->setProjectionType(Ogre::PT_PERSPECTIVE);
+                }
+                else if(command == CMD_POLYGON_MODE_SOLID)
+                {
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->setPolygonMode(Ogre::PM_SOLID);
+                }
+                else if(command == CMD_POLYGON_MODE_WIRE)
+                {
+                    m_sceneMgr->getCamera(APP_MAIN_CAM_NAME)->setPolygonMode(Ogre::PM_WIREFRAME);
                 }
             }
-        }else if(m_previousState == CMD_BG_TRANSFERT)
+        }else if(m_previousState == CMD_TRANSFERT_BATTLEFIELD)
         {
             parse_CMD_BG_TRANSFERT_fill(msg);
         }
@@ -193,7 +234,7 @@ InputListener::frameEnded(const Ogre::FrameEvent& evt)
 void
 InputListener::parse_CMD_BG_TRANSFERT_Begin(const std::string chunk)
 {
-    m_previousState = CMD_BG_TRANSFERT;
+    m_previousState = CMD_TRANSFERT_BATTLEFIELD;
     m_ssCurrentStringFlow << chunk;
 }
 

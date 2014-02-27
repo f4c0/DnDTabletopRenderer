@@ -6,7 +6,7 @@
 #include "InputListener.h"
 #include "Battleground.h"
 
-#define APP_WIN_NAME "DnD Tabletop v0.0.1 by Faco"
+#define APP_WIN_NAME "DnD Tabletop v0.2.0 by Faco"
 
 class AppDemarrage
 {

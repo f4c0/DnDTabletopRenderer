@@ -10,9 +10,20 @@
 #include "Battleground.h"
 #include "NetworkManager.h"
 
+#define APP_MAIN_CAM_NAME "MainCam"
+
 #define CMD_SIZE 4
-#define CMD_BG_TRANSFERT "[A0]"
-#define CMD_SHUTDOWN "[A1]"
+#define CMD_TRANSFERT_BATTLEFIELD   "[A0]"
+#define CMD_SHUTDOWN                "[A1]"
+#define CMD_MOVE_CAM_LEFT           "[M1]"
+#define CMD_MOVE_CAM_RIGHT          "[M2]"
+#define CMD_MOVE_CAM_UP             "[M3]"
+#define CMD_MOVE_CAM_DOWN           "[M4]"
+#define CMD_PROJ_ORTHO              "[C1]"
+#define CMD_PROJ_PERSPECTIVE        "[C2]"
+#define CMD_POLYGON_MODE_SOLID      "[P1]"
+#define CMD_POLYGON_MODE_WIRE       "[P2]"
+
 #define CMD_SIZEWIN "sizewin"
 #define CMD_CAM_MOVE "move"
 #define CMD_WIRE "wire"

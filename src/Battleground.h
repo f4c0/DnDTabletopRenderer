@@ -2,6 +2,7 @@
 #define BATTLEGROUND_H
 
 #include <Ogre.h>
+#include <cmath>
 #include <map>
 #include <sstream>
 #include <pugixml/pugixml.hpp>
@@ -33,6 +34,7 @@ class Battleground
         std::map<int, Ogre::String>* m_resourceIdMapper;
 
         Ogre::String getMaterialById(const int id) const;
+        void createWall(const std::string wallId, const Ogre::Vector3 p1, const Ogre::Vector3 p2);
 
 };
 
