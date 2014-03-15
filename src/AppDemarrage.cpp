@@ -55,8 +55,8 @@ AppDemarrage::start(const Ogre::String& pluginFile, const Ogre::String& ogreFile
 
     }
 
-    if(!(mRoot->restoreConfig() || mRoot->showConfigDialog()))
-    //if(!mRoot->showConfigDialog())
+    //if(!(mRoot->restoreConfig() || mRoot->showConfigDialog()))
+    if(!mRoot->showConfigDialog())
     {
         return false;
     }

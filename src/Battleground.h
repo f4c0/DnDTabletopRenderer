@@ -12,6 +12,8 @@
 #define BATTLEGND_TILE_SIZE 1.5f
 #define BATTLEGND_NODE_NAME "bf_node"
 
+#define sysout(text) std::cout<<text
+
 using namespace pugi;
 
 class Battleground
@@ -34,7 +36,9 @@ class Battleground
         std::map<int, Ogre::String>* m_resourceIdMapper;
 
         Ogre::String getMaterialById(const int id) const;
-        void createWall(const std::string wallId, const Ogre::Vector3 p1, const Ogre::Vector3 p2);
+        void create3DWall(const std::string& wallId, const Ogre::Vector3& p1, const Ogre::Vector3& p2);
+        void create2DWall(const std::string& wallId, const Ogre::Vector3& p1, const Ogre::Vector3& p2);
+        void createWall(const std::string& wallId, const xml_node& xmlWallNode);
 
 };
 

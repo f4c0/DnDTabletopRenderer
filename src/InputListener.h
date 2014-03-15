@@ -30,6 +30,8 @@
 #define CMD_GRID "grid"
 #define DISPLAY_RCV_MSG(msg) std::cout<<"[RCV CMD]> "<<msg<<"\n"
 
+
+
 using namespace pugi;
 
 class InputListener : public Ogre::FrameListener

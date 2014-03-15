@@ -98,10 +98,10 @@ m_resourceIdMapper(resourceIdMapper)
         std::istringstream (movableObjNode.attribute("y").value()) >> objY;
         std::istringstream (movableObjNode.attribute("refId").value()) >> refId;
 
-        std::cout << "resourceId: " << movableObjNode.attribute("resourceId").value() << "\n";
-        std::cout << "refId: " << movableObjNode.attribute("refId").value() << "\n";
-        std::cout << "x: " << objX << "\n";
-        std::cout << "y: " << objY << "\n";
+//        std::cout << "resourceId: " << movableObjNode.attribute("resourceId").value() << "\n";
+//        std::cout << "refId: " << movableObjNode.attribute("refId").value() << "\n";
+//        std::cout << "x: " << objX << "\n";
+//        std::cout << "y: " << objY << "\n";
 
         Ogre::Vector3 objPos(objX, 0, objY);
 
@@ -165,7 +165,7 @@ m_resourceIdMapper(resourceIdMapper)
 //        wallNode->attachObject(wall);
 //
 //        wall->begin(materialName, Ogre::RenderOperation::OT_TRIANGLE_LIST , Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        std::cout << "GLOP !!!\n";
+        //std::cout << "wall !!!\n";
         for (xml_node_iterator it = wallNode.begin(); it != wallNode.end(); ++it)
         {
             Ogre::Real pointX;
@@ -173,19 +173,20 @@ m_resourceIdMapper(resourceIdMapper)
             std::istringstream (it->attribute("x").value()) >> pointX;
             std::istringstream (it->attribute("y").value()) >> pointZ;
 
-            std::cout << "POING !!!\n";
+//            std::cout << "Point[" << pointX << " ; " << pointZ << "]\n";
 
             if(it == wallNode.begin())
             {
                 p1.x = pointX;
-                p1.z = pointZ + 0.5 * BATTLEGND_TILE_SIZE;
+                p1.z = pointZ ;//+ 0.5 * BATTLEGND_TILE_SIZE;
             }else
             {
                 p2.x = pointX;
-                p2.z = pointZ + 0.5 * BATTLEGND_TILE_SIZE;
+                p2.z = pointZ ;//+ 0.5 * BATTLEGND_TILE_SIZE;
                 std::string strWallId = static_cast<std::ostringstream*>( &(std::ostringstream() << wallId) )->str();
 
-                createWall(strWallId, p1, p2);
+                //create3DWall(strWallId, p1, p2);
+                create2DWall(strWallId, p1, p2);
                 wallId ++;
 
                 p1.x = pointX;
@@ -198,13 +199,25 @@ m_resourceIdMapper(resourceIdMapper)
 
     }
 
+//    p1.x = 6 * BATTLEGND_TILE_SIZE;
+//    p1.z = 5 * BATTLEGND_TILE_SIZE;
+//    p2.x = 7 * BATTLEGND_TILE_SIZE;
+//    p2.z = 5 * BATTLEGND_TILE_SIZE;
+//    createWall("MurFmi1", p1, p2);
+//
+//    p1.x = 8 * BATTLEGND_TILE_SIZE;
+//    p1.z = 5 * BATTLEGND_TILE_SIZE;
+//    p2.x = 10 * BATTLEGND_TILE_SIZE;
+//    p2.z = 5 * BATTLEGND_TILE_SIZE;
+//    createWall("MurFmi2", p1, p2);
+
     std::cout << "Number of created walls: " << wallId << "\n";
 
-    Ogre::Light* pointLight = mSceneMgr->createLight("DungeonLight");
-    pointLight->setType(Ogre::Light::LT_POINT);
-    pointLight->setPosition(Ogre::Vector3(10*1.5f, 1*1.5f, 10*1.5f));
-    pointLight->setDiffuseColour(0.1, 0.1, 0.1);
-    pointLight->setSpecularColour(0.1, 0.1, 0.1);
+//    Ogre::Light* pointLight = mSceneMgr->createLight("DungeonLight");
+//    pointLight->setType(Ogre::Light::LT_POINT);
+//    pointLight->setPosition(Ogre::Vector3(10*1.5f, 1*1.5f, 10*1.5f));
+//    pointLight->setDiffuseColour(0.1, 0.1, 0.1);
+//    pointLight->setSpecularColour(0.1, 0.1, 0.1);
 }
 
 Battleground::~Battleground()
@@ -219,7 +232,7 @@ Battleground::~Battleground()
         m_bfNode->removeAndDestroyAllChildren();
         m_SceneMgr->destroyAllEntities();
         m_SceneMgr->destroyAllLights();
-        m_SceneMgr->destroyManualObject(m_battleGnd);
+        m_SceneMgr->destroyAllManualObjects();
         m_SceneMgr->destroySceneNode(m_bfNode);
 
     }
@@ -247,28 +260,141 @@ Battleground::getMaterialById(const int id) const
 }
 
 void
-Battleground::createWall(const std::string wallId, const Ogre::Vector3 p1, const Ogre::Vector3 p2)
+Battleground::create3DWall(const std::string& wallId, const Ogre::Vector3& p1, const Ogre::Vector3& p2)
 {
     const Ogre::Real wallCenterX = (std::abs(p1.x - p2.x) / 2.0) + std::min(p1.x, p2.x);
-    const Ogre::Real wallCenterY = 1.5f;
+    const Ogre::Real wallCenterY = 0.0f;
     const Ogre::Real wallCenterZ = (std::abs(p1.z - p2.z) / 2.0) + std::min(p1.z, p2.z);
     const Ogre::Vector3 wallCenter(wallCenterX, wallCenterY, wallCenterZ);
-    std::cout << wallCenter << "\n";
     const Ogre::Real wallLength = sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.z - p2.z) * (p1.z - p2.z));
-    const Ogre::Real angle  = acos(std::abs(p1.x - p2.x) / wallLength);
+    const Ogre::Real angle  = - atan(std::abs(p1.z - p2.z) / std::abs(p1.x - p2.x));
 
+    const Ogre::Real wallHeight = 2.5f;
+    const Ogre::Real wallThickness = 0.5f;
+
+    const Ogre::Quaternion rotation(Ogre::Radian(angle), Ogre::Vector3::UNIT_Y);
     std::string wallEntityName  = "WallEnt_";
     wallEntityName.append(wallId);
     std::string wallNodeName    = "WallNode_";
     wallNodeName.append(wallId);
+    std::string wallMeshName    = "Mesh_";
+    wallMeshName.append(wallId);
 
-    Ogre::Quaternion rotation(Ogre::Radian(angle), Ogre::Vector3::UNIT_Y);
-
-    //Ogre::Entity*       wallEntity = m_SceneMgr->createEntity(wallEntityName, "Cube.mesh");
-    Ogre::Entity*       wallEntity = m_SceneMgr->createEntity(wallEntityName, Ogre::SceneManager::PT_CUBE);
-    wallEntity->setMaterialName("Wall/brick");
-
+    Ogre::ManualObject* manObjWall = m_SceneMgr->createManualObject(wallEntityName);
     Ogre::SceneNode*    wallNode = m_bfNode->createChildSceneNode(wallNodeName, wallCenter, rotation);
-    wallNode->scale(0.01*wallLength, 0.01*1, 0.01);
-    wallNode->attachObject(wallEntity);
+    wallNode->attachObject(manObjWall);
+
+    manObjWall->setCastShadows(true);
+    manObjWall->begin("Wall/brick", Ogre::RenderOperation::OT_TRIANGLE_LIST, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+    /*0*/manObjWall->position(-wallLength/2,    wallHeight, -wallThickness/2);
+    manObjWall->textureCoord(0.0, 0.0);
+    /*1*/manObjWall->position(wallLength/2,     wallHeight, -wallThickness/2);
+    manObjWall->textureCoord(wallLength/2.5f, 1.0);
+    /*2*/manObjWall->position(wallLength/2,     0.0f, -wallThickness/2);
+    manObjWall->textureCoord(wallLength/2.5f, 1.0);
+    /*3*/manObjWall->position(-wallLength/2,    0.0f, -wallThickness/2);
+    manObjWall->textureCoord(0.0, 1.0);
+
+    /*4*/manObjWall->position(-wallLength/2,    wallHeight, wallThickness/2);
+    manObjWall->textureCoord(0.0, 1.0);
+    /*5*/manObjWall->position(wallLength/2,     wallHeight, wallThickness/2);
+    manObjWall->textureCoord(wallLength/2.5f, 1.0);
+    /*6*/manObjWall->position(wallLength/2,     0.0f, wallThickness/2);
+    manObjWall->textureCoord(wallLength/2.5f, 0.0);
+    /*7*/manObjWall->position(-wallLength/2,    0.0f, wallThickness/2);
+    manObjWall->textureCoord(0.0, 0.0);
+
+    // face behind / front
+    manObjWall->triangle(0,1,2);
+    manObjWall->triangle(2,3,0);
+    manObjWall->triangle(4,6,5);
+    manObjWall->triangle(6,4,7);
+
+    // face top / down
+    manObjWall->triangle(0,4,5);
+    manObjWall->triangle(5,1,0);
+    manObjWall->triangle(2,6,7);
+    manObjWall->triangle(7,3,2);
+
+    // face left / right
+    manObjWall->triangle(0,7,4);
+    manObjWall->triangle(7,0,3);
+    manObjWall->triangle(1,5,6);
+    manObjWall->triangle(6,2,1);
+
+    manObjWall->end();
+
+//    Ogre::MeshPtr meshPtr = manObjWall->convertToMesh(wallMeshName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+//    unsigned short src, dest;
+//    if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+//    {
+//     meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+//    }
+}
+
+void
+Battleground::create2DWall(const std::string& wallId, const Ogre::Vector3& p1, const Ogre::Vector3& p2)
+{
+    const Ogre::Real wallCenterX = (std::abs(p1.x - p2.x) / 2.0) + std::min(p1.x, p2.x);
+    const Ogre::Real wallCenterY = 0.5f;
+    const Ogre::Real wallCenterZ = (std::abs(p1.z - p2.z) / 2.0) + std::min(p1.z, p2.z);
+    const Ogre::Vector3 wallCenter(wallCenterX, wallCenterY, wallCenterZ+0.3f*BATTLEGND_TILE_SIZE);
+    const Ogre::Real wallLength = sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.z - p2.z) * (p1.z - p2.z));
+    const Ogre::Real angle  = - atan(std::abs(p1.z - p2.z) / std::abs(p1.x - p2.x));
+
+    const Ogre::Real wallHeight = 2.5f;
+    const Ogre::Real wallThickness = BATTLEGND_TILE_SIZE * 0.5f;
+
+    const Ogre::Quaternion rotation(Ogre::Radian(angle), Ogre::Vector3::UNIT_Y);
+    std::string wallEntityName  = "WallEnt_";
+    wallEntityName.append(wallId);
+    std::string wallNodeName    = "WallNode_";
+    wallNodeName.append(wallId);
+    std::string wallMeshName    = "Mesh_";
+    wallMeshName.append(wallId);
+
+    Ogre::ManualObject* manObjWall = m_SceneMgr->createManualObject(wallEntityName);
+    Ogre::SceneNode*    wallNode = m_bfNode->createChildSceneNode(wallNodeName, wallCenter, rotation);
+    wallNode->attachObject(manObjWall);
+
+    manObjWall->setCastShadows(true);
+    manObjWall->begin("Wall/brick", Ogre::RenderOperation::OT_TRIANGLE_LIST, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+    /*0*/manObjWall->position(-wallLength/2,    wallCenterY, -wallThickness/2);
+    manObjWall->textureCoord(0.0, 1.0);
+    /*1*/manObjWall->position(wallLength/2,     wallCenterY, -wallThickness/2);
+    manObjWall->textureCoord(wallLength/2.5f, 1.0);
+    /*4*/manObjWall->position(-wallLength/2,    wallCenterY, wallThickness/2);
+    manObjWall->textureCoord(0.0, 0.0);
+    /*5*/manObjWall->position(wallLength/2,     wallCenterY, wallThickness/2);
+    manObjWall->textureCoord(wallLength/2.5f, 0.0);
+
+    manObjWall->triangle(0,2,3);
+    manObjWall->triangle(3,1,0);
+
+    manObjWall->end();
+}
+
+void
+Battleground::createWall(const std::string& wallId, const xml_node& xmlWallNode)
+{
+    const Ogre::String materialName  = "Wall/brick";
+    const Ogre::Real wallThickness  = 0.5f;
+
+    Ogre::String wallEntityName  = "WallEnt_";
+    Ogre::String wallNodeName    = "WallNode_";
+    wallEntityName.append(wallId);
+    wallNodeName.append(wallId);
+
+    Ogre::ManualObject* wallObject   = m_SceneMgr->createManualObject(wallEntityName);
+    Ogre::SceneNode*    wallNode     = m_bfNode->createChildSceneNode(wallNodeName, Ogre::Vector3::ZERO, Ogre::Quaternion::IDENTITY);
+    wallNode->attachObject(wallObject);
+
+    wallObject->begin(materialName, Ogre::RenderOperation::OT_TRIANGLE_LIST , Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    for(xml_node_iterator it = xmlWallNode.begin(); it != xmlWallNode.end(); ++it)
+    {
+
+    }
+    wallObject->end();
 }
